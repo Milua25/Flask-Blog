@@ -1,9 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %} My Personal Blog {% endblock %}
+
+{% block head %} {{ super() }} {% endblock %}
+
+{% block content %}
 <h1> Hello World </h1>
 
-<p> My Personal Blog!!! </p>
-
-<p>{{ stuff | striptags  }}</p>
+<p>{{ stuff | striptags }}</p>
 
 {% for item in fav_pizza_menu %}
 <p> {{ item }}</p>
 {% endfor %}
+{% endblock %}

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!--    Bootstrap link-->
+    {{ bootstrap.load_css() }}
+    <!--    Internal CSS link-->
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+    <title> {% block title %} {% endblock %} </title>
+    {% endblock %}
+</head>
+<body>
+{% include "navbar.html" %}
+<div class="container"> {% block content %} {% endblock %}</div>
+
+<!-- Optional JavaScript -->
+{{ bootstrap.load_js() }}
+</body>
+</html>

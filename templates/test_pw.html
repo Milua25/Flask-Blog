@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %} My Personal Blog {% endblock %}
+
+{% block head %} {{ super() }} {% endblock %}
+
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+ {{ message }}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+{% endfor %}
+
+{% if email and pw_to_check == None: %}
+<h1> Email: {{ email }} </h1>
+<h1> Password: {{ password }} </h1>
+<p style="color: red"> {{ email }} does not exist!!! </p>
+{% elif email and pw_to_check.email and passed == False : %}
+<h1> Email: {{ email }} </h1>
+<h1> Password: {{ password }} </h1>
+<p style="color: red"> {{ password }} is incorrect!!! </p>
+{% elif email and pw_to_check.email and passed : %}
+<h1> Email: {{ email }} </h1>
+<h1> Password: {{ password }} </h1>
+<p style="color: blue"> {{ pw_to_check.name }} login successful!!! </p>
+<img src="{{ url_for('static', filename='images/background-img.jpeg') }}" width="1100">
+<br/>
+<p id="demo">This is stuff... </p>
+<script src="{{ url_for('static', filename='js/myfile.js') }}"></script>
+{% else %}
+  {% from 'bootstrap5/form.html' import render_form %}
+  {{ render_form(form, button_style='secondary') }}
+{% endif %}
+
+{% endblock %}

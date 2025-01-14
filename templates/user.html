@@ -1,1 +1,12 @@
+{% extends "base.html" %}
+{% block title %} User Page {% endblock %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+
 {{ user | title }}, Welcome Home!!!
+
+{% endblock %}

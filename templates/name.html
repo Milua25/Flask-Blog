@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %} My Personal Blog {% endblock %}
+
+{% block head %} {{ super() }} {% endblock %}
+
+{% block content %}
+{% for message in get_flashed_messages() %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+ {{ message }}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
+{% endfor %}
+
+{% if name %}
+<h1> Hello {{ name }}!!! </h1>
+<img src="{{ url_for('static', filename='images/background-img.jpeg') }}" width="1100">
+<br/>
+<p id="demo">This is stuff... </p>
+<script src="{{ url_for('static', filename='js/myfile.js') }}"></script>
+{% else %}
+  {% from 'bootstrap5/form.html' import render_form %}
+    {{ form.hidden_tag() }}
+  {{ render_form(form, button_style='secondary') }}
+{% endif %}
+
+{% endblock %}

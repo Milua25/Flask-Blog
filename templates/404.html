@@ -1,11 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>404 Not Found</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %} 404 Not Found {% endblock %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
 <h1> 404 Error </h1>
 <p> Page not found - Try again </p>
-</body>
-</html>
+{% endblock %}
