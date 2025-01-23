@@ -14,6 +14,9 @@
         <h2 class="blog-post-title">{{ post.title }}</h2>
         <p class="blog-post-meta">{{ post.date_posted }} by <a href="#">{{ post.author }}</a></p>
         <p>{{ post.content }}</p>
+        <button type="button" class="btn btn-outline-secondary btn-sm"><a href="{{ url_for('edit_post', id=post.id) }}">Edit Post</a></button>
+        <button type="button" class="btn btn-outline-secondary btn-sm"><a href="{{ url_for('delete_post', id=post.id) }}">Delete Post</a></button>
+
         <hr>
       </article>
 </div>
