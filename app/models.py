@@ -1,9 +1,9 @@
 from sqlalchemy import String, Text, Integer, ForeignKey, DateTime, MetaData
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from typing import Optional
+from typing import Optional, List
 from flask_login import UserMixin
 from app import db
 
@@ -14,11 +14,14 @@ class Posts(db.Model):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String(255))
     content: Mapped[str] = mapped_column(Text)
-    author: Mapped[str] = mapped_column(String(255))
+    #author: Mapped[str] = mapped_column(String(255))
     date_posted: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     date_updated: Mapped[Optional[datetime]] = mapped_column(DateTime, server_default=func.now(),
                                                              onupdate=func.current_timestamp())
     slug: Mapped[str] = mapped_column(String(255))
+    # Foreign Key to Link Users (refer to primary key of the user)
+    poster_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    poster: Mapped["Users"] = relationship(back_populates="posts")
 
     # create string
     def __repr__(self):
@@ -30,8 +33,12 @@ class Users(db.Model, UserMixin):
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     email: Mapped[str] = mapped_column(String(200), nullable=False, unique=True)
     favorite_color: Mapped[str] = mapped_column(String(100), nullable=True)
+    about_author: Mapped[str] = mapped_column(Text(120), nullable=True)
     password_hash: Mapped[str] = mapped_column(String(250), nullable=False)
     date_added: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now())
+
+    # Users can have many posts
+    posts: Mapped[List["Posts"]] = relationship(back_populates="poster")
 
     @property
     def password(self):

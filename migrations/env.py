@@ -5,6 +5,13 @@ from flask import current_app
 
 from alembic import context
 
+# add your model's MetaData object here
+# for 'autogenerate' support
+from app import Base
+target_metadata = Base.metadata
+
+# ...
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

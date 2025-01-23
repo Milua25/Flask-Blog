@@ -7,27 +7,40 @@
 {% block content %}
 {% for message in get_flashed_messages() %}
 <div class="alert alert-success alert-dismissible fade show" role="alert">
- {{ message }}
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 
 {% endfor %}
 
 
 <div class="card">
-  <div class="card-header">
-    Featured
-  </div>
-  <div class="card-body">
-   <h1> Dashboard!!!</h1>
-   <p> You are logged in!! </p>
-   <strong>Name: {{current_user.name }}</strong></br>
-   <strong>Username: {{current_user.username }}</strong></br>
-   <strong>User Id: {{current_user.id }}</strong></br>
-   <strong>Email: {{current_user.email }}</strong></br>
-   <strong>Favourite Color: {{current_user.favorite_color }}</strong></br>
-   <strong>Date Joined: {{current_user.date_added }}</strong></br>
-  </div>
+    <div class="card-header">
+        Featured
+    </div>
+    <div class="card-body">
+        <div class="container">
+            <div class="row">
+                <div class="col-8">
+                    <h1> Dashboard!!!</h1>
+                    <p> You are logged in!! </p>
+                    <strong>Name: {{current_user.name }}</strong></br>
+                    <strong>Username: {{current_user.username }}</strong></br>
+                    <strong>User Id: {{current_user.id }}</strong></br>
+                    <strong>Email: {{current_user.email }}</strong></br>
+                    <strong>Favourite Color: {{current_user.favorite_color }}</strong></br>
+                    <strong>About Author: {{current_user.about_author }}</strong></br>
+                    <strong>Date Joined: {{current_user.date_added }}</strong></br>
+                </div>
+                <div class="col-4">
+                    <img src="{{url_for('static', filename='images/default_pic.jpeg')}}" align="right">
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
 </div>
 
 {% endblock %}

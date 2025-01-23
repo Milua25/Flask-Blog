@@ -16,7 +16,8 @@
 <h1> Update User!!!</h1>
 <br/>
 {% else %}
-<h1> Update User: </h1>
+<h1> Update User...</h1>
+<br/><br/>
 <div class="shadow p-3 mb-5 bg-body rounded">
   {% from 'bootstrap5/form.html' import render_form %}
   {{ render_form(form, button_style='secondary') }}

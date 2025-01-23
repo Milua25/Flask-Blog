@@ -16,6 +16,7 @@
 <div class="shadow p-3 mb-5 bg-body rounded">
   {% from 'bootstrap5/form.html' import render_form %}
   {{ render_form(form, button_style='secondary') }}
+  {{ ckeditor.config(name='content') }}
 </div>
 <br/><br/><br/><br/>
 {% endblock %}

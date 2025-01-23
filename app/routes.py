@@ -1,11 +1,14 @@
-from flask import Flask, render_template, request, flash, url_for
+from crypt import methods
+
+from flask import Flask, render_template, request, flash, url_for, abort
 from werkzeug.utils import redirect
 from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import  login_required, login_user, logout_user
-from app.forms import PasswordForm, UserForm,PostForm, LoginForm
+from flask_login import login_required, login_user, logout_user, current_user
+from app.forms import PasswordForm, UserForm, PostForm, LoginForm, UpdateForm, SearchForm
 from app.models import Posts, Users
 from app import db
+
 
 def register_routes(app, login_manager):
     @login_manager.user_loader
@@ -76,7 +79,8 @@ def register_routes(app, login_manager):
                     email=user_form.email.data,
                     username=user_form.username.data,
                     password_hash=generate_password_hash(user_form.password.data, method="pbkdf2"),
-                    favorite_color=user_form.favorite_color.data
+                    favorite_color=user_form.favorite_color.data,
+                    about_author = user_form.about_author.data
                 )
                 print(new_user)
                 db.session.add(new_user)
@@ -95,24 +99,31 @@ def register_routes(app, login_manager):
 
     # Update Database Record
     @app.route("/update/<int:id>", methods=["GET", "POST"])
+    @login_required
     def update_user(id):
-        user_form = UserForm()
-        name_to_update = Users.query.get_or_404(id)
-        if request.method == "POST" and user_form.validate_on_submit():
-            name_to_update.name = user_form.name.data
-            name_to_update.email = user_form.email.data
-            name_to_update.favorite_color = user_form.favorite_color.data
-            try:
-                db.session.commit()
-                flash("User updated successfully!")
-                return render_template("update.html", form=user_form, name_to_update=name_to_update)
-            except IntegrityError:
-                flash("Error! Try again")
-                return render_template("update.html", form=user_form, name_to_update=name_to_update)
+        if id == current_user.id:
+            update_form = UpdateForm()
+            name_to_update = Users.query.get_or_404(id)
+            if request.method == "POST" and update_form.validate_on_submit():
+                name_to_update.name = update_form.name.data
+                name_to_update.email = update_form.email.data
+                name_to_update.favorite_color = update_form.favorite_color.data
+                name_to_update.about_author = update_form.about_author.data
+                try:
+                    db.session.commit()
+                    flash("User updated successfully!")
+                    return render_template("update.html", form=update_form, name_to_update=name_to_update)
+                except IntegrityError:
+                    flash("Error! Try again")
+                    return render_template("update.html", form=update_form, name_to_update=name_to_update)
+            else:
+                update_form.name.data = name_to_update.name
+                update_form.email.data = name_to_update.email
+                update_form.username.data = name_to_update.username
+                update_form.favorite_color.data = name_to_update.favorite_color
+                return render_template("update.html", form=update_form, name_to_update=name_to_update)
         else:
-            user_form.name.data = name_to_update.name
-            user_form.email.data = name_to_update.email
-            return render_template("update.html", form=user_form, name_to_update=name_to_update)
+            return abort(404)
 
     # Delete user from database
     @app.route("/delete/<int:id>", methods=["GET", "POST"])
@@ -136,12 +147,11 @@ def register_routes(app, login_manager):
             post = Posts(
                 title=form.title.data,
                 content=form.content.data,
-                author=form.author.data,
+                poster_id=current_user.id,
                 slug=form.slug.data,
             )
             form.title.data = ""
             form.content.data = ""
-            form.author.data = ""
             form.slug.data = ""
 
             # Add post data to db
@@ -161,6 +171,7 @@ def register_routes(app, login_manager):
 
     # Get Individual page
     @app.route("/posts/<int:id>")
+    @login_required
     def get_post(id):
         post = Posts.query.get_or_404(id)
         return render_template("post.html", post=post)
@@ -168,31 +179,36 @@ def register_routes(app, login_manager):
     @app.route("/post/edit/<int:id>", methods=["GET", "POST"])
     def edit_post(id):
         post = Posts.query.get_or_404(id)
-        post_form = PostForm()
-        if post_form.validate_on_submit() and request.method == "POST":
-            post.title = post_form.title.data
-            post.author = post_form.author.data
-            post.content = post_form.content.data
-            post.slug = post_form.slug.data
-            # Add to database
-            db.session.add(post)
-            db.session.commit()
-            flash("Post has been updated!`")
-            return redirect(url_for("get_post", id=post.id))
-        post_form.title.data = post.title
-        post_form.author.data = post.author
-        post_form.content.data = post.content
-        post_form.slug.data = post.slug
-        return render_template("edit_post.html", form=post_form)
+        if current_user.id == post.poster.id:
+            post_form = PostForm()
+            if post_form.validate_on_submit() and request.method == "POST":
+                post.title = post_form.title.data
+                post.content = post_form.content.data
+                post.slug = post_form.slug.data
+                # Add to database
+                db.session.add(post)
+                db.session.commit()
+                flash("Post has been updated!`")
+                return redirect(url_for("get_post", id=post.id))
+            post_form.title.data = post.title
+            post_form.content.data = post.content
+            post_form.slug.data = post.slug
+            return render_template("edit_post.html", form=post_form)
+        else:
+            return abort(404)
 
     # Delete Post
     @app.route("/post/delete/<int:id>")
+    @login_required
     def delete_post(id):
         post_to_delete = Posts.query.get_or_404(id)
-        db.session.delete(post_to_delete)
-        db.session.commit()
-        flash("Blog Post was deleted!!!")
-        return redirect(url_for("posts"))
+        if current_user.id == post_to_delete.poster.id:
+            db.session.delete(post_to_delete)
+            db.session.commit()
+            flash("Blog Post was deleted!!!")
+            return redirect(url_for("posts"))
+        else:
+            return abort(404)
 
     # Create Login Page
     @app.route("/login", methods=["GET", "POST"])
@@ -224,6 +240,35 @@ def register_routes(app, login_manager):
         flash("You have been loggedout!!!")
         return redirect(url_for("login"))
 
+    # Pass variables to extended files
+    @app.context_processor
+    def base():
+        form = SearchForm()
+        return dict(form=form)
+
+    # Search function
+    @app.route("/search", methods=["POST"])
+    def search():
+        form = SearchForm()
+        if form.validate_on_submit():
+            #Get data from submitted form
+            searched = form.searched.data
+            posts = Posts.query.filter(Posts.content.like("%" + searched + "%")).order_by(Posts.title).all()
+            return render_template("searched.html", form=form, searched=searched, posts=posts)
+        else:
+            return abort(404)
+
+    # Admin Page
+    @app.route("/admin")
+    @login_required
+    def admin():
+        id = current_user.id
+        if id == 1:
+            return  render_template("admin.html")
+        else:
+            flash("Only Admins have access to this page")
+            return redirect(url_for("dashboard"))
+
     # Create Custom Error pages
     @app.errorhandler(404)
     def page_not_found(e):
@@ -231,6 +276,5 @@ def register_routes(app, login_manager):
 
     # Internal server error
     @app.errorhandler(500)
-    def page_not_found(e):
+    def internal_error(e):
         return render_template("500.html"), 500
-

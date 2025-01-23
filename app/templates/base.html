@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <!--    Bootstrap link-->
     {{ bootstrap.load_css() }}
+
+    <!--    Load CKEditor-->
+    {{ ckeditor.load() }}
     <!--    Internal CSS link-->
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
 
