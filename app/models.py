@@ -36,6 +36,7 @@ class Users(db.Model, UserMixin):
     about_author: Mapped[str] = mapped_column(Text(120), nullable=True)
     password_hash: Mapped[str] = mapped_column(String(250), nullable=False)
     date_added: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now())
+    profile_pic:  Mapped[str] = mapped_column(String(), nullable=True)
 
     # Users can have many posts
     posts: Mapped[List["Posts"]] = relationship(back_populates="poster")

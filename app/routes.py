@@ -1,5 +1,3 @@
-from crypt import methods
-
 from flask import Flask, render_template, request, flash, url_for, abort
 from werkzeug.utils import redirect
 from sqlalchemy.exc import IntegrityError
@@ -8,7 +6,9 @@ from flask_login import login_required, login_user, logout_user, current_user
 from app.forms import PasswordForm, UserForm, PostForm, LoginForm, UpdateForm, SearchForm
 from app.models import Posts, Users
 from app import db
-
+from werkzeug.utils import secure_filename
+import uuid as uuid
+import os
 
 def register_routes(app, login_manager):
     @login_manager.user_loader
@@ -109,6 +109,18 @@ def register_routes(app, login_manager):
                 name_to_update.email = update_form.email.data
                 name_to_update.favorite_color = update_form.favorite_color.data
                 name_to_update.about_author = update_form.about_author.data
+                image = update_form.profile_pic.data
+                # Get Image name
+                pic_filename = secure_filename(image.filename)
+                # Set UUID
+                pic_name = str(uuid.uuid1()) + "_" + pic_filename
+
+                name_to_update.profile_pic = pic_name
+
+                # save photo to directory
+                basedir = os.path.abspath(os.path.dirname(__file__)).split("app")[0]
+                image.save(os.path.join(basedir, f"photos/{pic_name}"))
+
                 try:
                     db.session.commit()
                     flash("User updated successfully!")
